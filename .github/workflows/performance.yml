@@ -1,0 +1,43 @@
+name: Performance Check
+
+on:
+  workflow_dispatch:  # Manual trigger only
+  schedule:
+    - cron: '0 3 * * 0'  # Every Sunday at 3 AM
+
+jobs:
+  performance:
+    name: Performance Test
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use OCaml 5.1
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-depext: false
+
+        
+    - name: Install dependencies
+      run: |
+        opam update
+        opam install . --deps-only --with-test
+        
+    - name: Build with profiling
+      run: dune build --profile release
+        
+    - name: Run performance tests
+      run: |
+        echo "Running performance tests..."
+        time _build/default/test/test_zobrist.exe
+        time _build/default/examples/pgn_demo.exe
+        time _build/default/examples/board_demo.exe
+        time _build/default/examples/zobrist_demo.exe
+        
+    - name: Memory usage check
+      run: |
+        echo "Checking memory usage..."
+        /usr/bin/time -v _build/default/test/test_zobrist.exe 2>&1 | grep "Maximum resident set size"

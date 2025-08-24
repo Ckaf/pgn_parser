@@ -1,0 +1,128 @@
+# OCaml build artifacts
+_build/
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+*.exe
+*.byte
+
+# Dune specific
+.dune/
+*.install
+
+# OPAM
+_opam/
+
+# OCaml package manager
+*.opam.locked
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Documentation build
+doc/
+docs/_build/
+
+# Test artifacts
+test-results/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Backup files
+*.bak
+*.backup
+
+# OCaml specific
+*.ml.dep
+*.mli.dep
+*.ml.d
+*.mli.d
+
+# Merlin
+.merlin
+
+# OCamlformat
+*.ml.tidy
+*.mli.tidy
+
+# OCaml compiler
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+*.exe
+*.byte
+
+# OCaml tools
+*.annot
+*.cmt
+*.cmti
+
+# Dune cache
+.dune-cache/
+
+# OCaml package manager cache
+.opam/
+
+# Generated files
+*.gen.ml
+*.gen.mli
+
+# Test output
+test_output/
+*.test
+
+# Coverage reports
+*.coverage
+*.gcov
+
+# Profiling
+*.prof
+
+# Debug symbols
+*.dSYM/
+
+# Archive files
+*.tar.gz
+*.zip
+
+# Local configuration
+local.opam

@@ -1,0 +1,42 @@
+(test
+ (name test_pgn_parser)
+ (libraries pgn_parser qcheck))
+
+
+
+(test
+ (name test_zobrist)
+ (libraries pgn_parser))
+
+(executable
+ (name test_lichess_api)
+ (libraries pgn_parser lichess_api lwt lwt.unix))
+
+(executable
+ (name test_lichess_api_offline)
+ (libraries pgn_parser lichess_api))
+
+(executable
+ (name test_integration)
+ (libraries pgn_parser lichess_api))
+
+(executable
+ (name test_chess_com_api)
+ (libraries pgn_parser chess_com_api lwt lwt.unix))
+
+(executable
+ (name test_chess_com_api_offline)
+ (libraries pgn_parser chess_com_api))
+
+(executable
+ (name test_unfinished_games)
+ (libraries pgn_parser)
+ (flags :standard -warn-error -A))
+
+(executable
+ (name test_advanced_moves)
+ (libraries pgn_parser)
+ (flags :standard -warn-error -A))
+
+
+

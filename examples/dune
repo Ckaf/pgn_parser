@@ -1,0 +1,25 @@
+(executable
+ (name board_demo)
+ (libraries pgn_parser))
+
+(executable
+ (name pgn_demo)
+ (libraries pgn_parser))
+
+(executable
+ (name zobrist_demo)
+ (libraries pgn_parser))
+
+(executable
+ (name lichess_demo)
+ (libraries pgn_parser lichess_api lwt lwt.unix))
+
+(executable
+ (name simple_demo)
+ (libraries pgn_parser))
+
+(executable
+ (name chess_com_demo)
+ (libraries pgn_parser chess_com_api lwt lwt.unix))
+
+

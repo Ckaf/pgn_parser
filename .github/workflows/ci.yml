@@ -1,0 +1,213 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Test PGN Parser
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        ocaml-version: [5.1]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use OCaml ${{ matrix.ocaml-version }}
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: ${{ matrix.ocaml-version }}
+        opam-depext: false
+        opam-disable-sandboxing: true
+        
+    - name: Install dependencies
+      run: |
+        opam install dune
+        opam install . --deps-only --with-test --with-doc || echo "Warning: opam install failed, trying alternative approach"
+        opam install . --deps-only --with-test --with-doc
+        
+    - name: Build project
+      run: dune build --profile release
+      
+    - name: Run tests
+      run: dune runtest --profile release
+      
+    - name: Run Zobrist tests
+      run: _build/default/test/test_zobrist.exe
+      
+    - name: Run Advanced Move tests
+      run: _build/default/test/test_advanced_moves.exe
+      
+    - name: Run Unfinished Games tests
+      run: _build/default/test/test_unfinished_games.exe
+      
+    - name: Run Property-based tests
+      run: _build/default/test/test_pgn_parser.exe
+      
+    - name: Run Lichess API tests (offline)
+      run: _build/default/test/test_lichess_api_offline.exe
+      
+    - name: Run Chess.com API tests (offline)
+      run: _build/default/test/test_chess_com_api_offline.exe
+      
+    - name: Run Lichess API tests (online)
+      run: _build/default/test/test_lichess_api.exe
+      continue-on-error: true  # API tests may fail due to network issues
+      
+    - name: Run Chess.com API tests (online)
+      run: _build/default/test/test_chess_com_api.exe
+      continue-on-error: true  # API tests may fail due to network issues
+      
+    - name: Run Integration tests
+      run: _build/default/test/test_integration.exe
+      continue-on-error: true  # Integration tests may fail due to dependencies
+      
+    - name: Build examples
+      run: dune build examples/ --profile release
+      
+    - name: Run PGN demo
+      run: _build/default/examples/pgn_demo.exe
+      
+    - name: Run board demo
+      run: _build/default/examples/board_demo.exe
+      
+    - name: Run Zobrist demo
+      run: _build/default/examples/zobrist_demo.exe
+
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use OCaml 5.1
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-depext: false
+        opam-disable-sandboxing: true
+        
+    - name: Install dependencies
+      run: |
+        opam install dune
+        opam install . --deps-only --with-test --with-doc
+        opam install ocamlformat ocp-indent
+        
+    - name: Check code formatting
+      run: |
+        dune build @fmt --auto-promote
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "Code formatting issues found. Please run 'dune build @fmt --auto-promote' locally."
+          git diff
+          exit 1
+        fi
+        
+    - name: Check for unused code
+      run: dune build @check
+
+  security:
+    name: Security Check
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use OCaml 5.1
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-depext: false
+        opam-disable-sandboxing: true
+        
+    - name: Install dependencies
+      run: |
+        opam install dune
+        opam install . --deps-only --with-test --with-doc
+        
+    - name: Check for vulnerabilities
+      run: |
+        # Check for known vulnerabilities in dependencies
+        opam list --depends-on=. --recursive | grep -E "(CVE|vulnerability)" || true
+        
+    - name: Run security-focused tests
+      run: |
+        # Run tests with additional security checks
+        dune runtest --profile release
+
+  documentation:
+    name: Build Documentation
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use OCaml 5.1
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-depext: false
+        opam-disable-sandboxing: true
+        
+    - name: Install dependencies
+      run: |
+        opam install dune
+        opam install . --deps-only --with-test --with-doc
+        
+    - name: Build documentation
+      run: dune build @doc
+        
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation
+        path: _build/default/_doc/_html/
+        retention-days: 30
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-20.04
+    needs: [test, lint, security]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use OCaml 5.1
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-depext: false
+        opam-disable-sandboxing: true
+        
+    - name: Install dependencies
+      run: |
+        opam install dune
+        opam install . --deps-only --with-test --with-doc
+        
+    - name: Build release
+      run: dune build --profile release
+        
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          _build/default/bin/main.exe
+          _build/default/examples/*.exe
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

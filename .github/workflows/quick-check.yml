@@ -1,0 +1,43 @@
+name: Quick Check
+
+on:
+  push:
+    branches-ignore: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  quick-test:
+    name: Quick Test
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use OCaml 5.1
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-depext: false
+
+        
+    - name: Install dependencies
+      run: |
+        opam update
+        opam install . --deps-only --with-test
+        
+    - name: Build project
+      run: dune build
+        
+    - name: Run basic tests
+      run: dune runtest
+        
+    - name: Run Zobrist tests
+      run: _build/default/test/test_zobrist.exe
+        
+    - name: Build examples
+      run: dune build examples/
+        
+    - name: Run PGN demo
+      run: _build/default/examples/pgn_demo.exe

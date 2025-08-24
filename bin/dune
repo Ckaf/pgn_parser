@@ -1,0 +1,5 @@
+(executable
+ (public_name pgn_parser)
+ (name main)
+ (package pgn_parser)
+ (libraries pgn_parser lichess_api))

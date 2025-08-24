@@ -1,0 +1,25 @@
+name: Cache Dependencies
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  cache:
+    name: Cache OPAM
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use OCaml 5.1
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: 5.1
+        opam-depext: false
+
+        
+    - name: Install dependencies
+      run: |
+        opam update
+        opam install . --deps-only --with-test

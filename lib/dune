@@ -1,0 +1,17 @@
+(library
+ (name pgn_parser)
+ (modules pgn_parser)
+ (libraries cohttp-lwt-unix yojson)
+ (flags :standard -warn-error -A))
+
+(library
+ (name lichess_api)
+ (modules lichess_api)
+ (libraries cohttp-lwt-unix yojson)
+ (flags :standard -warn-error -A))
+
+(library
+ (name chess_com_api)
+ (modules chess_com_api)
+ (libraries cohttp-lwt-unix yojson)
+ (flags :standard -warn-error -A))
