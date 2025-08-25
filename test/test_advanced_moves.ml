@@ -215,6 +215,221 @@ let test_simple_game () =
       Printf.printf "\n";
       false
 
+(** Test piece move source position bug fix *)
+let test_piece_source_positions () =
+  Printf.printf "\n=== Testing Piece Move Source Position Bug Fix ===\n";
+  
+  let test_cases = [
+    (* These were the problematic moves from the bug report *)
+    ("Ne3", "Knight to e3");
+    ("Bg7", "Bishop to g7");
+    ("Nf3", "Knight to f3");
+    ("Be4", "Bishop to e4");
+    
+    (* Additional knight moves to test L-shape movement *)
+    ("Nc3", "Knight to c3");
+    ("Nd4", "Knight to d4");
+    ("Nf6", "Knight to f6");
+    ("Ng5", "Knight to g5");
+    ("Na3", "Knight to a3");
+    ("Nh6", "Knight to h6");
+    
+    (* Additional bishop moves to test diagonal movement *)
+    ("Bd3", "Bishop to d3");
+    ("Bf4", "Bishop to f4");
+    ("Bh3", "Bishop to h3");
+    ("Bc6", "Bishop to c6");
+    ("Be7", "Bishop to e7");
+    ("Bg2", "Bishop to g2");
+    
+    (* Rook moves to test horizontal/vertical movement *)
+    ("Re1", "Rook to e1");
+    ("Rf8", "Rook to f8");
+    ("Ra4", "Rook to a4");
+    ("Rh5", "Rook to h5");
+    
+    (* Queen moves to test combined movement *)
+    ("Qd2", "Queen to d2");
+    ("Qf7", "Queen to f7");
+    ("Qa5", "Queen to a5");
+    ("Qh4", "Queen to h4");
+    
+    (* King moves to test single square movement *)
+    ("Ke2", "King to e2");
+    ("Kf7", "King to f7");
+    ("Kc3", "King to c3");
+    ("Kg6", "King to g6");
+    
+    (* Capture moves to test source position calculation *)
+    ("Nxe4", "Knight captures on e4");
+    ("Bxf7", "Bishop captures on f7");
+    ("Rxd5", "Rook captures on d5");
+    ("Qxe8", "Queen captures on e8");
+    ("Kxf2", "King captures on f2");
+  ] in
+  
+  let results = List.map (fun (move_str, description) ->
+    match parse_simple_move move_str with
+    | Ok move ->
+        let (from_square, to_square, piece) = match move with
+          | Normal (piece, from, dest) -> (from, dest, piece)
+          | Capture (piece, from, dest, _) -> (from, dest, piece)
+          | _ -> (('a', 1), ('a', 1), Pawn)  (* Shouldn't happen for these moves *)
+        in
+        let (from_file, from_rank) = from_square in
+        let (to_file, to_rank) = to_square in
+        
+        (* Check if the move is valid for the piece type *)
+        let is_valid = match piece with
+          | Knight ->
+              (* Knights move in L-shape: 2 squares in one direction, 1 square perpendicular *)
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              (file_diff = 1 && rank_diff = 2) || (file_diff = 2 && rank_diff = 1)
+          | Bishop ->
+              (* Bishops move diagonally *)
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              file_diff = rank_diff
+          | Rook ->
+              (* Rooks move horizontally or vertically *)
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              (file_diff = 0 && rank_diff > 0) || (file_diff > 0 && rank_diff = 0)
+          | Queen ->
+              (* Queens can move like rooks or bishops *)
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              (* Either horizontal/vertical (like rook) or diagonal (like bishop) *)
+              (file_diff = 0 && rank_diff > 0) || (file_diff > 0 && rank_diff = 0) || (file_diff = rank_diff)
+          | King ->
+              (* Kings move one square in any direction *)
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              file_diff <= 1 && rank_diff <= 1 && (file_diff > 0 || rank_diff > 0)
+          | Pawn ->
+              (* Pawns move forward (or diagonally for captures) *)
+              (* For this test, we'll assume it's a forward move *)
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = to_rank - from_rank in
+              file_diff = 0 && rank_diff > 0
+        in
+        
+        if is_valid then
+          Printf.printf "✅ %s: %s -> from %c%d to %c%d (VALID)\n" 
+            description move_str from_file from_rank to_file to_rank
+        else
+          Printf.printf "❌ %s: %s -> from %c%d to %c%d (INVALID)\n" 
+            description move_str from_file from_rank to_file to_rank;
+        is_valid
+    | Error e ->
+        Printf.printf "❌ %s: %s - Error: " description move_str;
+        pp_error Format.std_formatter e;
+        Printf.printf "\n";
+        false
+  ) test_cases in
+  
+  let passed = List.fold_left (fun acc x -> if x then acc + 1 else acc) 0 results in
+  let total = List.length results in
+  
+  Printf.printf "\n=== Results ===\n";
+  Printf.printf "Passed: %d/%d piece source position tests\n" passed total;
+  
+  passed = total
+
+(** Test complex piece movement scenarios *)
+let test_complex_piece_scenarios () =
+  Printf.printf "\n=== Testing Complex Piece Movement Scenarios ===\n";
+  
+  let test_cases = [
+    (* Edge cases for knight movement *)
+    ("Na1", "Knight to a1 (edge case)");
+    ("Nh8", "Knight to h8 (edge case)");
+    ("Na8", "Knight to a8 (edge case)");
+    ("Nh1", "Knight to h1 (edge case)");
+    
+    (* Edge cases for bishop movement *)
+    ("Ba1", "Bishop to a1 (edge case)");
+    ("Bh8", "Bishop to h8 (edge case)");
+    ("Ba8", "Bishop to a8 (edge case)");
+    ("Bh1", "Bishop to h1 (edge case)");
+    
+    (* Complex captures with different pieces *)
+    ("Nxe5+", "Knight captures on e5 with check");
+    ("Bxf7#", "Bishop captures on f7 with checkmate");
+    ("Rxe8+", "Rook captures on e8 with check");
+    ("Qxf7+", "Queen captures on f7 with check");
+    ("Kxe2", "King captures on e2");
+    
+    (* Moves to center squares *)
+    ("Ne4", "Knight to e4 (center)");
+    ("Bd4", "Bishop to d4 (center)");
+    ("Re4", "Rook to e4 (center)");
+    ("Qd4", "Queen to d4 (center)");
+    ("Ke4", "King to e4 (center)");
+  ] in
+  
+  let results = List.map (fun (move_str, description) ->
+    match parse_simple_move move_str with
+    | Ok move ->
+        let (from_square, to_square, piece) = match move with
+          | Normal (piece, from, dest) -> (from, dest, piece)
+          | Capture (piece, from, dest, _) -> (from, dest, piece)
+          | _ -> (('a', 1), ('a', 1), Pawn)  (* Shouldn't happen for these moves *)
+        in
+        let (from_file, from_rank) = from_square in
+        let (to_file, to_rank) = to_square in
+        
+        (* Check if the move is valid for the piece type *)
+        let is_valid = match piece with
+          | Knight ->
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              (file_diff = 1 && rank_diff = 2) || (file_diff = 2 && rank_diff = 1)
+          | Bishop ->
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              file_diff = rank_diff
+          | Rook ->
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              (file_diff = 0 && rank_diff > 0) || (file_diff > 0 && rank_diff = 0)
+          | Queen ->
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              (file_diff = 0 && rank_diff > 0) || (file_diff > 0 && rank_diff = 0) || (file_diff = rank_diff)
+          | King ->
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              file_diff <= 1 && rank_diff <= 1 && (file_diff > 0 || rank_diff > 0)
+          | Pawn ->
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = to_rank - from_rank in
+              file_diff = 0 && rank_diff > 0
+        in
+        
+        if is_valid then
+          Printf.printf "✅ %s: %s -> from %c%d to %c%d (VALID)\n" 
+            description move_str from_file from_rank to_file to_rank
+        else
+          Printf.printf "❌ %s: %s -> from %c%d to %c%d (INVALID)\n" 
+            description move_str from_file from_rank to_file to_rank;
+        is_valid
+    | Error e ->
+        Printf.printf "❌ %s: %s - Error: " description move_str;
+        pp_error Format.std_formatter e;
+        Printf.printf "\n";
+        false
+  ) test_cases in
+  
+  let passed = List.fold_left (fun acc x -> if x then acc + 1 else acc) 0 results in
+  let total = List.length results in
+  
+  Printf.printf "\n=== Results ===\n";
+  Printf.printf "Passed: %d/%d complex piece scenario tests\n" passed total;
+  
+  passed = total
+
 (** Test edge cases *)
 let test_edge_cases () =
   Printf.printf "\n=== Testing Edge Cases ===\n";
@@ -265,10 +480,12 @@ let () =
   let test3 = test_en_passant_moves () in
   let test4 = test_promotion_moves () in
   let test5 = test_simple_game () in
-  let test6 = test_edge_cases () in
-  let test7 = test_invalid_moves () in
+  let test6 = test_piece_source_positions () in
+  let test7 = test_complex_piece_scenarios () in
+  let test8 = test_edge_cases () in
+  let test9 = test_invalid_moves () in
   
-  let results = [test1; test2; test3; test4; test5; test6; test7] in
+  let results = [test1; test2; test3; test4; test5; test6; test7; test8; test9] in
   let passed = List.fold_left (fun acc x -> if x then acc + 1 else acc) 0 results in
   let total = List.length results in
   

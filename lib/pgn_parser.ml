@@ -447,22 +447,58 @@ let parse_simple_move move_str =
                         (* Full disambiguation *)
                         (from_file, from_rank)
                   | None ->
-                      (* No disambiguation - use default heuristic *)
-                      if String.length move_part >= 3 then
-                        let disambig = move_part.[0] in
-                        if disambig >= 'a' && disambig <= 'h' then
-                          (* File disambiguation *)
-                          (disambig, if to_rank > 4 then to_rank - 1 else to_rank + 1)
-                        else if disambig >= '1' && disambig <= '8' then
-                          (* Rank disambiguation *)
-                          let from_rank = int_of_char disambig - int_of_char '0' in
-                          (to_file, from_rank)
-                        else
-                          (* Default position *)
-                          (to_file, if to_rank > 4 then to_rank - 1 else to_rank + 1)
-                      else
-                        (* No disambiguation *)
-                        (to_file, if to_rank > 4 then to_rank - 1 else to_rank + 1)
+                      (* No disambiguation - use proper chess piece movement patterns *)
+                      (* For pieces without disambiguation, we need to calculate valid source positions *)
+                      (match piece with
+                       | Knight -> 
+                           (* Knights move in L-shape: 2 squares in one direction, 1 square perpendicular *)
+                           (* For Ne3, valid sources could be d1, f1, c2, g2, d5, f5, etc. *)
+                           (* Let's calculate a valid source position *)
+                           if to_rank <= 3 then
+                             (* Moving to lower ranks, assume from a higher rank with L-shape *)
+                             (* Use a valid knight move: 2 squares in one direction, 1 square perpendicular *)
+                             if to_file <= 'd' then
+                               (char_of_int (int_of_char to_file + 2), to_rank + 1)
+                             else
+                               (char_of_int (int_of_char to_file - 2), to_rank + 1)
+                           else
+                             (* Moving to higher ranks, assume from a lower rank with L-shape *)
+                             if to_file <= 'd' then
+                               (char_of_int (int_of_char to_file + 2), to_rank - 1)
+                             else
+                               (char_of_int (int_of_char to_file - 2), to_rank - 1)
+                       | Bishop ->
+                           (* Bishops move diagonally *)
+                           (* For Bg7, valid sources could be f6, h6, f8, h8, etc. *)
+                           (* Use a diagonal source position *)
+                           if to_rank <= 4 then
+                             (* Moving to lower ranks, assume from a higher rank diagonally *)
+                             if to_file <= 'd' then
+                               (char_of_int (int_of_char to_file + 1), to_rank + 1)
+                             else
+                               (char_of_int (int_of_char to_file - 1), to_rank + 1)
+                           else
+                             (* Moving to higher ranks, assume from a lower rank diagonally *)
+                             if to_file <= 'd' then
+                               (char_of_int (int_of_char to_file + 1), to_rank - 1)
+                             else
+                               (char_of_int (int_of_char to_file - 1), to_rank - 1)
+                       | Rook ->
+                           (* Rooks move horizontally or vertically *)
+                           (* Use the original heuristic which is reasonable for rooks *)
+                           (to_file, if to_rank > 4 then to_rank - 1 else to_rank + 1)
+                       | Queen ->
+                           (* Queens can move like rooks or bishops *)
+                           (* Use the original heuristic which is reasonable *)
+                           (to_file, if to_rank > 4 then to_rank - 1 else to_rank + 1)
+                       | King ->
+                           (* Kings move one square in any direction *)
+                           (* Use the original heuristic which is correct for kings *)
+                           (to_file, if to_rank > 4 then to_rank - 1 else to_rank + 1)
+                       | Pawn ->
+                           (* Pawns move forward (or diagonally for captures) *)
+                           (* Use the original heuristic which is correct for pawns *)
+                           (to_file, if to_rank > 4 then to_rank - 1 else to_rank + 1))
             in
             
             (* Handle different move types *)

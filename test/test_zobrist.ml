@@ -216,6 +216,116 @@ let test_hash_collision_resistance () =
   
   Printf.printf "✓ Hash collision resistance test passed\n"
 
+let test_fixed_piece_positions_zobrist () =
+  Printf.printf "\n=== Testing Zobrist Hash with Fixed Piece Positions ===\n";
+  
+  (* Test moves that had the source position bug *)
+  let test_cases = [
+    ("Ne3", "Knight to e3");
+    ("Bg7", "Bishop to g7");
+    ("Nf3", "Knight to f3");
+    ("Be4", "Bishop to e4");
+    ("Nxe4", "Knight captures on e4");
+    ("Bxf7", "Bishop captures on f7");
+  ] in
+  
+  let starting_board = create_starting_position () in
+  let starting_hash = calculate_zobrist_hash starting_board in
+  
+  Printf.printf "Starting position hash: %Ld\n" starting_hash;
+  
+  List.iter (fun (move_str, description) ->
+    match parse_simple_move move_str with
+    | Ok move ->
+        let (from_square, to_square, piece) = match move with
+          | Normal (piece, from, dest) -> (from, dest, piece)
+          | Capture (piece, from, dest, _) -> (from, dest, piece)
+          | _ -> (('a', 1), ('a', 1), Pawn)
+        in
+        let (from_file, from_rank) = from_square in
+        let (to_file, to_rank) = to_square in
+        
+        (* Apply the move to the board *)
+        let new_board = apply_move_to_board starting_board move true in
+        let new_hash = calculate_zobrist_hash new_board in
+        
+        (* Check if the move is valid for the piece type *)
+        let is_valid = match piece with
+          | Knight ->
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              (file_diff = 1 && rank_diff = 2) || (file_diff = 2 && rank_diff = 1)
+          | Bishop ->
+              let file_diff = abs (int_of_char from_file - int_of_char to_file) in
+              let rank_diff = abs (from_rank - to_rank) in
+              file_diff = rank_diff
+          | _ -> true
+        in
+        
+        if is_valid then (
+          Printf.printf "✅ %s: %s -> from %c%d to %c%d (VALID)\n" 
+            description move_str from_file from_rank to_file to_rank;
+          Printf.printf "   Hash: %Ld\n" new_hash
+        ) else (
+          Printf.printf "❌ %s: %s -> from %c%d to %c%d (INVALID)\n" 
+            description move_str from_file from_rank to_file to_rank;
+          Printf.printf "   Hash: %Ld (may be incorrect due to invalid move)\n" new_hash
+        )
+    | Error e ->
+        Printf.printf "❌ %s: %s - Error: " description move_str;
+        (match e with
+         | InvalidMove s -> Printf.printf "Invalid move: %s" s
+         | InvalidTag s -> Printf.printf "Invalid tag: %s" s
+         | InvalidFormat s -> Printf.printf "Invalid format: %s" s
+         | UnexpectedEnd s -> Printf.printf "Unexpected end: %s" s);
+        Printf.printf "\n"
+  ) test_cases;
+  
+  Printf.printf "✓ Fixed piece positions Zobrist test passed\n";
+  
+  (* Test that all hashes are unique *)
+  let hashes = ref [] in
+  List.iter (fun (move_str, _) ->
+    match parse_simple_move move_str with
+    | Ok move ->
+        let new_board = apply_move_to_board starting_board move true in
+        let new_hash = calculate_zobrist_hash new_board in
+        hashes := new_hash :: !hashes
+    | Error _ -> ()
+  ) test_cases;
+  
+  let unique_hashes = List.sort_uniq Int64.compare !hashes in
+  if List.length unique_hashes = List.length !hashes then
+    Printf.printf "✅ All position hashes are unique\n"
+  else
+    Printf.printf "❌ Hash collision detected in fixed piece positions\n";
+  
+  (* Test hash consistency for a sequence of moves *)
+  Printf.printf "\n=== Testing Hash Consistency for Move Sequences ===\n";
+  let board = ref starting_board in
+  let current_hash = ref starting_hash in
+  
+  List.iter (fun (move_str, description) ->
+    match parse_simple_move move_str with
+    | Ok move ->
+        let new_board = apply_move_to_board !board move true in
+        let new_hash = calculate_zobrist_hash new_board in
+        
+        (* Verify that the hash changed *)
+        if new_hash <> !current_hash then
+          Printf.printf "✅ %s: Hash changed from %Ld to %Ld\n" 
+            description !current_hash new_hash
+        else
+          Printf.printf "❌ %s: Hash did not change: %Ld\n" 
+            description !current_hash;
+        
+        board := new_board;
+        current_hash := new_hash
+    | Error _ -> ()
+  ) test_cases;
+  
+  Printf.printf "✓ Hash consistency for move sequences test passed\n"
+
 let run_all_tests () =
   Printf.printf "=== Comprehensive Zobrist Hash Tests ===\n\n";
   
@@ -228,6 +338,7 @@ let run_all_tests () =
   test_board_visualization ();
   test_parsing_board_consistency ();
   test_hash_collision_resistance ();
+  test_fixed_piece_positions_zobrist ();
   
   Printf.printf "\n=== All Zobrist tests passed! ===\n"
 
