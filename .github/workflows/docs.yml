@@ -16,24 +16,61 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup OCaml
-        uses: ocaml/setup-ocaml@v2
-        with:
-          ocaml-compiler: 5.1
-          opam-depext: false
-          opam-disable-sandboxing: true
-  
-      - name: Install dependencies
+        
+      - name: Install OCaml manually
         run: |
-          opam install dune
-          opam install . --deps-only --with-test --with-doc
+          echo "Installing OCaml 4.14 manually..."
+          
+          # Add OPAM repository
+          sudo add-apt-repository ppa:avsm/ppa -y || true
+          sudo apt-get update || true
+          
+          # Install OPAM
+          sudo apt-get install -y opam || true
+          
+          # Initialize OPAM
+          opam init --disable-sandboxing --yes
+          
+          # Update OPAM
+          opam update
+          
+          # List available OCaml versions
+          echo "Available OCaml versions:"
+          opam switch list-available | grep -E "ocaml\.[0-9]" | head -10
+          
+          # Install OCaml
+          opam switch create 4.14 ocaml.4.14.0 --yes
+          opam switch 4.14
+          
+          echo "OCaml 4.14 installed successfully"
+          
+      - name: Install dependencies
+        env:
+          OPAMYES: "1"
+          OPAMNO: "1"
+          OPAMVERBOSE: "1"
+        run: |
+          echo "Cleaning OPAM cache..."
+          timeout 300 opam update
+          echo "Installing dune..."
+          timeout 300 opam install dune --yes
+          echo "Installing project dependencies..."
+          timeout 600 opam install . --deps-only --with-test --with-doc --yes
+          echo "Dependencies installed successfully"
+          
+          # Update shell environment
+          eval $(opam env)
+          echo "Shell environment updated"
+          
       - name: Build documentation
-        run: dune build @doc
+        run: |
+          eval $(opam env)
+          dune build @doc
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
@@ -45,7 +82,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Deploy to GitHub Pages
