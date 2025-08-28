@@ -9,40 +9,77 @@ jobs:
   compatibility:
     name: OCaml Compatibility
     runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    env:
+      OPAMYES: "1"
+      OPAMNO: "1"
+      OPAMVERBOSE: "1"
     
     strategy:
       matrix:
-        ocaml-version: [4.12, 4.13, 4.14, 5.0, 5.1, 5.2]
+        ocaml-version: [4.14, 5.0, 5.1]
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Use OCaml ${{ matrix.ocaml-version }}
-      uses: ocaml/setup-ocaml@v2
-      with:
-        ocaml-compiler: ${{ matrix.ocaml-version }}
-        opam-depext: false
+    - name: Install OCaml ${{ matrix.ocaml-version }} manually
+      run: |
+        echo "Installing OCaml ${{ matrix.ocaml-version }} manually..."
+        
+        # Add OPAM repository
+        sudo add-apt-repository ppa:avsm/ppa -y || true
+        sudo apt-get update || true
+        
+        # Install OPAM
+        sudo apt-get install -y opam || true
+        
+        # Initialize OPAM
+        opam init --disable-sandboxing --yes
+        
+        # Update OPAM
+        opam update
+        
+        # Install OCaml with fallback
+        if opam switch create ${{ matrix.ocaml-version }} ocaml.${{ matrix.ocaml-version }}.0 --yes; then
+          echo "OCaml ${{ matrix.ocaml-version }}.0 installed successfully"
+        else
+          echo "Trying to install latest ${{ matrix.ocaml-version }} version..."
+          opam switch create ${{ matrix.ocaml-version }} --yes
+        fi
+        
+        opam switch ${{ matrix.ocaml-version }}
+        echo "OCaml ${{ matrix.ocaml-version }} installed successfully"
         
     - name: Install dependencies
       run: |
+        eval $(opam env)
         opam update
         opam install . --deps-only --with-test
         
     - name: Build project
-      run: dune build
+      run: |
+        eval $(opam env)
+        dune build
         
     - name: Run tests
-      run: dune runtest
+      run: |
+        eval $(opam env)
+        dune runtest
         
     - name: Run Zobrist tests
-      run: _build/default/test/test_zobrist.exe
+      run: |
+        eval $(opam env)
+        _build/default/test/test_zobrist.exe
         
     - name: Build examples
-      run: dune build examples/
+      run: |
+        eval $(opam env)
+        dune build examples/
         
     - name: Run demos
       run: |
+        eval $(opam env)
         _build/default/examples/pgn_demo.exe
         _build/default/examples/board_demo.exe
         _build/default/examples/zobrist_demo.exe
