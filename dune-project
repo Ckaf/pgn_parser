@@ -47,7 +47,8 @@
   (cohttp-lwt-unix (>= 5.0))
   (yojson (>= 1.7))
   (lwt (>= 5.6))
-  (lwt_ppx (>= 2.0)))
+  (lwt_ppx (>= 2.0))
+  (qcheck (>= 0.21)))
  (tags
   ("chess" "lichess" "api" "http" "client" "games" "pgn"))
  (allow_empty))
@@ -62,7 +63,8 @@
   (cohttp-lwt-unix (>= 5.0))
   (yojson (>= 1.7))
   (lwt (>= 5.6))
-  (lwt_ppx (>= 2.0)))
+  (lwt_ppx (>= 2.0))
+  (qcheck (>= 0.21)))
  (tags
   ("chess" "chess.com" "api" "http" "client" "games" "pgn"))
  (allow_empty))

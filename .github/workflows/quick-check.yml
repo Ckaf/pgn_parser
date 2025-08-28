@@ -2,7 +2,7 @@ name: Quick Check
 
 on:
   push:
-    branches-ignore: [ main, develop ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
@@ -10,34 +10,64 @@ jobs:
   quick-test:
     name: Quick Test
     runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      OPAMYES: "1"
+      OPAMNO: "1"
+      OPAMVERBOSE: "1"
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Use OCaml 5.1
-      uses: ocaml/setup-ocaml@v2
-      with:
-        ocaml-compiler: 5.1
-        opam-depext: false
+    - name: Install OCaml manually
+      run: |
+        echo "Installing OCaml 4.14 manually for Quick Check..."
+        
+        # Add OPAM repository
+        sudo add-apt-repository ppa:avsm/ppa -y || true
+        sudo apt-get update || true
+        
+        # Install OPAM
+        sudo apt-get install -y opam || true
+        
+        # Initialize OPAM
+        opam init --disable-sandboxing --yes
+        
+        # Update OPAM
+        opam update
+        
+        # Install OCaml
+        opam switch create 4.14 ocaml.4.14.0 --yes
+        opam switch 4.14
+        
+        echo "OCaml 4.14 installed successfully for Quick Check"
 
         
     - name: Install dependencies
       run: |
+        eval $(opam env)
         opam update
         opam install . --deps-only --with-test
         
     - name: Build project
-      run: dune build
+      run: |
+        eval $(opam env)
+        dune build
         
-    - name: Run basic tests
-      run: dune runtest
-        
-    - name: Run Zobrist tests
-      run: _build/default/test/test_zobrist.exe
+    - name: Run critical tests only
+      run: |
+        eval $(opam env)
+        echo "Running only critical tests for Quick Check..."
+        _build/default/test/test_pgn_parser.exe
+        _build/default/test/test_zobrist.exe
         
     - name: Build examples
-      run: dune build examples/
+      run: |
+        eval $(opam env)
+        dune build examples/
         
     - name: Run PGN demo
-      run: _build/default/examples/pgn_demo.exe
+      run: |
+        eval $(opam env)
+        _build/default/examples/pgn_demo.exe

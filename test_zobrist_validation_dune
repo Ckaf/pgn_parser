@@ -1,0 +1,5 @@
+(executable
+ (name test_zobrist_validation)
+ (libraries pgn_parser)
+ (flags :standard -warn-error -A))
+
