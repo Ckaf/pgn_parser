@@ -1,5 +1,9 @@
 # PGN Parser
 
+[![CI/CD](https://github.com/ckaf/pgn_parser/actions/workflows/ci.yml/badge.svg)](https://github.com/ckaf/pgn_parser/actions/workflows/ci.yml)
+[![Quick Check](https://github.com/ckaf/pgn_parser/actions/workflows/quick-check.yml/badge.svg)](https://github.com/ckaf/pgn_parser/actions/workflows/quick-check.yml)
+[![Compatibility](https://github.com/ckaf/pgn_parser/actions/workflows/compatibility.yml/badge.svg)](https://github.com/ckaf/pgn_parser/actions/workflows/compatibility.yml)
+
 A PGN (Portable Game Notation) parser for chess games written in OCaml. This parser can parse chess games from platforms like Lichess and other chess websites.
 
 ## Features
@@ -446,22 +450,6 @@ The project uses GitHub Actions for continuous integration and deployment:
 - ✅ **Documentation**: Automatic documentation generation
 - ✅ **Releases**: Automated releases on tags
 - ✅ **Dependency updates**: Weekly updates via Dependabot
-
-### Status Badges
-[![CI/CD](https://github.com/ckaf/pgn_parser/actions/workflows/ci.yml/badge.svg)](https://github.com/ckaf/pgn_parser/actions/workflows/ci.yml)
-[![Quick Check](https://github.com/ckaf/pgn_parser/actions/workflows/quick-check.yml/badge.svg)](https://github.com/ckaf/pgn_parser/actions/workflows/quick-check.yml)
-[![Compatibility](https://github.com/ckaf/pgn_parser/actions/workflows/compatibility.yml/badge.svg)](https://github.com/ckaf/pgn_parser/actions/workflows/compatibility.yml)
-
-## Recent Improvements
-
-- ✅ **Enhanced move parsing**: Support for complex disambiguation, en passant, and promotions
-- ✅ **Improved validation**: Better error handling for invalid moves and coordinates
-- ✅ **Comprehensive testing**: Advanced move parsing tests with edge case coverage
-- ✅ **Robust error handling**: Proper validation of promotion pieces and castling notation
-- ✅ **Fully implemented Chess.com API**: Complete JSON parsing for all endpoints
-- ✅ **Fully implemented Lichess API**: Real-time data with comprehensive statistics
-- ✅ **Enhanced API integration**: Robust error handling and real-time data fetching
-- ✅ **Advanced filtering**: Multi-criteria game search and filtering capabilities
 
 ## Future Improvements
 
