@@ -2,6 +2,14 @@
  (name test_pgn_parser)
  (libraries pgn_parser qcheck))
 
+(test
+ (name test_lichess_api_pbt)
+ (libraries lichess_api qcheck))
+
+(test
+ (name test_chess_com_api_pbt)
+ (libraries chess_com_api qcheck))
+
 
 
 (test
