@@ -4,6 +4,11 @@
 [![Quick Check](https://github.com/ckaf/pgn_parser/actions/workflows/quick-check.yml/badge.svg)](https://github.com/ckaf/pgn_parser/actions/workflows/quick-check.yml)
 [![Compatibility](https://github.com/ckaf/pgn_parser/actions/workflows/compatibility.yml/badge.svg)](https://github.com/ckaf/pgn_parser/actions/workflows/compatibility.yml)
 
+[![OPAM Package](https://img.shields.io/badge/OPAM%20Package-pgn__parser-green.svg?logo=ocaml)](https://opam.ocaml.org/packages/pgn_parser/)
+[![OPAM Package](https://img.shields.io/badge/OPAM%20Package-lichess__api-red.svg?logo=ocaml)](https://opam.ocaml.org/packages/lichess_api/)
+[![OPAM Package](https://img.shields.io/badge/OPAM%20Package-chess__com__api-blue.svg?logo=ocaml)](https://opam.ocaml.org/packages/chess_com_api/)
+
+
 A PGN (Portable Game Notation) parser for chess games written in OCaml. This parser can parse chess games from platforms like Lichess and other chess websites.
 
 ## Features
