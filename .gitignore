@@ -126,3 +126,4 @@ test_output/
 
 # Local configuration
 local.opam
+_install/

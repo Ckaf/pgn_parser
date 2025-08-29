@@ -6,12 +6,14 @@
 
 (library
  (name lichess_api)
+ (package lichess_api)
  (modules lichess_api)
- (libraries cohttp-lwt-unix yojson)
+ (libraries cohttp-lwt-unix yojson lwt lwt.unix)
  (flags :standard -warn-error -A))
 
 (library
  (name chess_com_api)
+ (package chess_com_api)
  (modules chess_com_api)
- (libraries cohttp-lwt-unix yojson)
+ (libraries cohttp-lwt-unix yojson lwt lwt.unix)
  (flags :standard -warn-error -A))

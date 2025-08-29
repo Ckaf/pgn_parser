@@ -1,7 +1,7 @@
 (lang dune 3.19)
 
 (name pgn_parser)
-(version 1.0.0)
+(version 1.0.1)
 
 (generate_opam_files true)
 
@@ -47,11 +47,9 @@
   (cohttp-lwt-unix (>= 5.0))
   (yojson (>= 1.7))
   (lwt (>= 5.6))
-  (lwt_ppx (>= 2.0))
-  (qcheck (>= 0.21)))
+  (lwt_ppx (>= 2.0)))
  (tags
-  ("chess" "lichess" "api" "http" "client" "games" "pgn"))
- (allow_empty))
+  ("chess" "lichess" "api" "http" "client" "games" "pgn")))
 
 (package
  (name chess_com_api)
@@ -63,10 +61,8 @@
   (cohttp-lwt-unix (>= 5.0))
   (yojson (>= 1.7))
   (lwt (>= 5.6))
-  (lwt_ppx (>= 2.0))
-  (qcheck (>= 0.21)))
+  (lwt_ppx (>= 2.0)))
  (tags
-  ("chess" "chess.com" "api" "http" "client" "games" "pgn"))
- (allow_empty))
+  ("chess" "chess.com" "api" "http" "client" "games" "pgn")))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html
