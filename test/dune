@@ -4,11 +4,13 @@
 
 (test
  (name test_lichess_api_pbt)
- (libraries lichess_api qcheck))
+ (libraries lichess_api qcheck)
+ (package lichess_api))
 
 (test
  (name test_chess_com_api_pbt)
- (libraries chess_com_api qcheck))
+ (libraries chess_com_api qcheck)
+ (package chess_com_api))
 
 
 
@@ -18,23 +20,33 @@
 
 (executable
  (name test_lichess_api)
- (libraries pgn_parser lichess_api lwt lwt.unix))
+ (public_name test_lichess_api)
+ (libraries pgn_parser lichess_api lwt lwt.unix)
+ (package lichess_api))
 
 (executable
  (name test_lichess_api_offline)
- (libraries pgn_parser lichess_api))
+ (public_name test_lichess_api_offline)
+ (libraries pgn_parser lichess_api)
+ (package lichess_api))
 
 (executable
  (name test_integration)
- (libraries pgn_parser lichess_api))
+ (public_name test_integration)
+ (libraries pgn_parser lichess_api)
+ (package lichess_api))
 
 (executable
  (name test_chess_com_api)
- (libraries pgn_parser chess_com_api lwt lwt.unix))
+ (public_name test_chess_com_api)
+ (libraries pgn_parser chess_com_api lwt lwt.unix)
+ (package chess_com_api))
 
 (executable
  (name test_chess_com_api_offline)
- (libraries pgn_parser chess_com_api))
+ (public_name test_chess_com_api_offline)
+ (libraries pgn_parser chess_com_api)
+ (package chess_com_api))
 
 (executable
  (name test_unfinished_games)
