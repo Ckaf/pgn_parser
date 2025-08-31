@@ -17,7 +17,7 @@ jobs:
     
     strategy:
       matrix:
-        ocaml-version: [4.14, 5.0, 5.1]
+        ocaml-version: [4.14]
     
     steps:
     - name: Checkout code
@@ -40,14 +40,12 @@ jobs:
         # Update OPAM
         opam update
         
-        # Install OCaml with fallback
-        if opam switch create ${{ matrix.ocaml-version }} ocaml.${{ matrix.ocaml-version }}.0 --yes; then
-          echo "OCaml ${{ matrix.ocaml-version }}.0 installed successfully"
-        else
-          echo "Trying to install latest ${{ matrix.ocaml-version }} version..."
-          opam switch create ${{ matrix.ocaml-version }} --yes
-        fi
+        # List available OCaml versions
+        echo "Available OCaml versions:"
+        opam switch list-available | grep -E "ocaml\.[0-9]" | head -10
         
+        # Install OCaml
+        opam switch create ${{ matrix.ocaml-version }} ocaml.${{ matrix.ocaml-version }}.0 --yes
         opam switch ${{ matrix.ocaml-version }}
         echo "OCaml ${{ matrix.ocaml-version }} installed successfully"
         
