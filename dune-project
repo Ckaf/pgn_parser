@@ -1,7 +1,7 @@
 (lang dune 3.19)
 
 (name pgn_parser)
-(version 1.0.1)
+(version 1.0.2)
 
 (generate_opam_files true)
 
