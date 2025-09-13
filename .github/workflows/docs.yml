@@ -67,16 +67,42 @@ jobs:
           eval $(opam env)
           echo "Shell environment updated"
           
-      - name: Build documentation
+      - name: Build OCaml documentation
         run: |
           eval $(opam env)
           dune build @doc
+          
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: false
+          
+      - name: Setup Jekyll
+        run: |
+          cd docs
+          gem install bundler --user-install
+          bundle config set --local path 'vendor/bundle'
+          bundle install
+          
+      - name: Build Jekyll site
+        run: |
+          cd docs
+          bundle config set --local path 'vendor/bundle'
+          bundle exec jekyll build --destination ../_site
+          
+      - name: Copy OCaml docs to Jekyll site
+        run: |
+          mkdir -p _site/api
+          cp -r _build/default/_doc/_html/* _site/api/
+          
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: '_build/default/_doc/_html'
+          path: '_site'
 
   deploy:
     environment:

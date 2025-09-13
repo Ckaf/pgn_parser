@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}</title>
+    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ site.url }}{{ site.baseurl }}{{ page.url }}">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}">
+    <meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    <meta property="og:image" content="{{ site.url }}{{ site.baseurl }}/assets/logo.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ site.url }}{{ site.baseurl }}{{ page.url }}">
+    <meta property="twitter:title" content="{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}">
+    <meta property="twitter:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    <meta property="twitter:image" content="{{ site.url }}{{ site.baseurl }}/assets/logo.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ site.baseurl }}/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="{{ site.baseurl }}/">
+                        <img src="{{ site.baseurl }}/assets/logo.png" alt="{{ site.title }}" class="logo-img">
+                        <span class="logo-text">{{ site.title }}</span>
+                    </a>
+                </div>
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="{{ site.baseurl }}/" {% if page.url == '/' %}class="active"{% endif %}>Home</a></li>
+                        <li><a href="{{ site.baseurl }}/api-reference" {% if page.url == '/api-reference/' %}class="active"{% endif %}>API Reference</a></li>
+                        <li><a href="{{ site.baseurl }}/examples" {% if page.url == '/examples/' %}class="active"{% endif %}>Examples</a></li>
+                        <li><a href="{{ site.baseurl }}/installation" {% if page.url == '/installation/' %}class="active"{% endif %}>Installation</a></li>
+                        <li><a href="https://github.com/{{ site.social.github }}/pgn_parser" target="_blank" rel="noopener">GitHub</a></li>
+                    </ul>
+                </nav>
+                <div class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="content-wrapper">
+                <aside class="sidebar">
+                    <nav class="sidebar-nav">
+                        <h3>Documentation</h3>
+                        <ul>
+                            <li><a href="{{ site.baseurl }}/" {% if page.url == '/' %}class="active"{% endif %}>Overview</a></li>
+                            <li><a href="{{ site.baseurl }}/api-reference" {% if page.url == '/api-reference/' %}class="active"{% endif %}>API Reference</a></li>
+                            <li><a href="{{ site.baseurl }}/examples" {% if page.url == '/examples/' %}class="active"{% endif %}>Examples</a></li>
+                            <li><a href="{{ site.baseurl }}/installation" {% if page.url == '/installation/' %}class="active"{% endif %}>Installation</a></li>
+                        </ul>
+                        
+                        <h3>Quick Links</h3>
+                        <ul>
+                            <li><a href="https://github.com/{{ site.social.github }}/pgn_parser" target="_blank" rel="noopener">GitHub Repository</a></li>
+                            <li><a href="https://opam.ocaml.org/packages/pgn_parser/" target="_blank" rel="noopener">OPAM Package</a></li>
+                            <li><a href="https://github.com/{{ site.social.github }}/pgn_parser/issues" target="_blank" rel="noopener">Issues</a></li>
+                            <li><a href="https://github.com/{{ site.social.github }}/pgn_parser/discussions" target="_blank" rel="noopener">Discussions</a></li>
+                        </ul>
+                    </nav>
+                </aside>
+                
+                <article class="content">
+                    <div class="content-header">
+                        <h1>{{ page.title | default: site.title }}</h1>
+                        {% if page.description %}
+                        <p class="content-description">{{ page.description }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="content-body">
+                        {{ content }}
+                    </div>
+                    
+                    <div class="content-footer">
+                        <div class="edit-link">
+                            <a href="https://github.com/{{ site.social.github }}/pgn_parser/edit/main/docs{{ page.url }}.md" target="_blank" rel="noopener">
+                                ✏️ Edit this page
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>{{ site.title }}</h4>
+                    <p>{{ site.description }}</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links</h4>
+                    <ul>
+                        <li><a href="https://github.com/{{ site.social.github }}/pgn_parser">GitHub</a></li>
+                        <li><a href="https://opam.ocaml.org/packages/pgn_parser/">OPAM</a></li>
+                        <li><a href="https://github.com/{{ site.social.github }}/pgn_parser/issues">Issues</a></li>
+                        <li><a href="https://github.com/{{ site.social.github }}/pgn_parser/discussions">Discussions</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Documentation</h4>
+                    <ul>
+                        <li><a href="{{ site.baseurl }}/">Home</a></li>
+                        <li><a href="{{ site.baseurl }}/api-reference">API Reference</a></li>
+                        <li><a href="{{ site.baseurl }}/examples">Examples</a></li>
+                        <li><a href="{{ site.baseurl }}/installation">Installation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
+                        <li><a href="https://github.com/{{ site.social.github }}">@{{ site.social.github }}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ 'now' | date: "%Y" }} {{ site.author }}. MIT License.</p>
+                <p>Built with <a href="https://jekyllrb.com/">Jekyll</a> and deployed on <a href="https://pages.github.com/">GitHub Pages</a>.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/main.js"></script>
+</body>
+</html>

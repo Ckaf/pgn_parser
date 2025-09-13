@@ -1,0 +1,94 @@
+# GitHub Pages configuration for Jekyll
+title: PGN Parser Documentation
+description: Comprehensive PGN (Portable Game Notation) parser for chess games written in OCaml
+author: ckaf
+email: borisnovoselov602@gmail.com
+url: https://ckaf.github.io
+baseurl: /pgn_parser
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Navigation
+navigation:
+  - title: Home
+    url: /
+  - title: API Reference
+    url: /api-reference
+  - title: Examples
+    url: /examples
+  - title: Installation
+    url: /installation
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# SEO
+seo:
+  type: Software
+  name: PGN Parser
+  description: Comprehensive PGN (Portable Game Notation) parser for chess games written in OCaml
+  url: https://ckaf.github.io/pgn_parser
+  image: /assets/logo.png
+
+# Social links
+social:
+  github: ckaf
+  email: borisnovoselov602@gmail.com
+
+# Exclude files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/
+  - .bundle/
+  - README.md
+  - LICENSE
+  - .gitignore
+  - .github/
+
+# Include files
+include:
+  - "*.md"
+  - _redirects
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "docs"
+    values:
+      layout: "default"
+
+# Kramdown configuration
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false
+      start_line: 1
+
+# Rouge configuration
+rouge:
+  theme: github
