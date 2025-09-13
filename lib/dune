@@ -1,5 +1,6 @@
 (library
  (name pgn_parser)
+ (package pgn_parser)
  (modules pgn_parser)
  (libraries cohttp-lwt-unix yojson)
  (flags :standard -warn-error -A))
